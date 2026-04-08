@@ -21,7 +21,7 @@ public class DatabaseCreateQuery{
 	
 	public static class NestedQueryBuilder {
 		List<Token> query = new ArrayList<>();
-		Validator<Token> queryValidator = SystemValidatorFactory.QueryValidator.QueryValidator();
+		Validator<Token> queryValidator = SystemValidatorFactory.QueryValidator.validator();
 
 		public NestedQueryBuilder root() {
 			Token token = new ROOT();

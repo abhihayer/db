@@ -4,7 +4,7 @@ import java.util.Set;
 
 import db.query.token.tokenInterface.Token;
 
-public class WrongTokenFoundException extends Exception {
+public class WrongTokenFoundException extends RuntimeException {
 
 	/**
 	 * 

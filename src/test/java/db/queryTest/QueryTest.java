@@ -4,16 +4,15 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
-import db.Error.DuplicateTokenException;
-import db.Error.MissingTokenException;
+import db.Error.WrongTokenFoundException;
 import db.query.Query;
-import db.query.queries.DatabaseCreateQueryBuilder;
+import db.query.queries.DatabaseCreateQuery;
 
 public class QueryTest {
 
 	@Test
 	public void buildDbQuerySuccess() {
-		Query dbCreateQuery = DatabaseCreateQueryBuilder.getNestedQueryBuilder().root().create().database("user", "abhi", "pass").BuildQuery();
+		Query dbCreateQuery = DatabaseCreateQuery.getNestedQueryBuilder().root().create().database("user", "abhi", "pass").BuildQuery();
 				
 		assertEquals(dbCreateQuery.getQuery().size(), 3);
 	}
@@ -21,9 +20,9 @@ public class QueryTest {
 	@Test
 	public void buildDbQueryFail1() {
 		try {
-			DatabaseCreateQueryBuilder.getNestedQueryBuilder().create().database("user", "abhi", "pass").BuildQuery();
+			DatabaseCreateQuery.getNestedQueryBuilder().create().database("user", "abhi", "pass").BuildQuery();
 		}
-		catch(MissingTokenException e) {
+		catch(WrongTokenFoundException e) {
 			assertEquals(e.getMessage(), "Token Missing : ROOT before adding: CREATE");
 
 		}
@@ -32,9 +31,9 @@ public class QueryTest {
 	@Test
 	public void buildDbQueryFail2() {
 		try {
-			DatabaseCreateQueryBuilder.getNestedQueryBuilder().root().root().create().database("user", "abhi", "pass").BuildQuery();
+			DatabaseCreateQuery.getNestedQueryBuilder().root().root().create().database("user", "abhi", "pass").BuildQuery();
 		}
-		catch(DuplicateTokenException e) {
+		catch(WrongTokenFoundException e) {
 			assertEquals(e.getMessage(), "ERROR! Found duplicate token: ROOT");
 		}
 	}
@@ -42,11 +41,11 @@ public class QueryTest {
 	@Test
 	public void buildDbQueryFail3() {
 		try {
-			DatabaseCreateQueryBuilder.getNestedQueryBuilder().root().create().create().database("user", "abhi", "pass").BuildQuery();
+			DatabaseCreateQuery.getNestedQueryBuilder().root().create().create().database("user", "abhi", "pass").BuildQuery();
 		}
-		catch(DuplicateTokenException e) {
+		catch(WrongTokenFoundException e) {
 			assertEquals(e.getMessage(), "ERROR! Found duplicate token: CREATE");
-			// db.Error.DuplicateTokenException: ERROR! Found duplicate token: CREATE
+			// db.Error.WrongTokenFoundException: ERROR! Found duplicate token: CREATE
 
 		}
 	}
@@ -54,9 +53,9 @@ public class QueryTest {
 	@Test
 	public void buildDbQueryFail4() {
 		try {
-			DatabaseCreateQueryBuilder.getNestedQueryBuilder().root().database("user", "abhi", "pass").BuildQuery();
+			DatabaseCreateQuery.getNestedQueryBuilder().root().database("user", "abhi", "pass").BuildQuery();
 		}
-		catch(MissingTokenException e) {
+		catch(WrongTokenFoundException e) {
 			assertEquals(e.getMessage(), "Token Missing : CREATE before adding: DATABASE");
 
 		}
@@ -65,9 +64,9 @@ public class QueryTest {
 	@Test
 	public void buildDbQueryFail5() {
 		try {
-			DatabaseCreateQueryBuilder.getNestedQueryBuilder().root().create().database("user", "abhi", "pass").database("user", "abhi", "pass").BuildQuery();
+			DatabaseCreateQuery.getNestedQueryBuilder().root().create().database("user", "abhi", "pass").database("user", "abhi", "pass").BuildQuery();
 		}
-		catch(DuplicateTokenException e) {
+		catch(WrongTokenFoundException e) {
 			assertEquals(e.getMessage(), "ERROR! Found duplicate token: DATABASE");
 		}
 	}
@@ -75,12 +74,12 @@ public class QueryTest {
 	@Test
 	public void buildDbQueryFail6() {
 		try {
-			DatabaseCreateQueryBuilder.getNestedQueryBuilder().root().BuildQuery();
+			DatabaseCreateQuery.getNestedQueryBuilder().root().BuildQuery();
 		}
-		catch(MissingTokenException e) {
+		catch(WrongTokenFoundException e) {
 			assertEquals(e.getMessage(), "Token Missing : CREATE before building query");
 			
-			//db.Error.MissingTokenException: Token Missing : CREATE before building query
+			//db.Error.WrongTokenFoundException: Token Missing : CREATE before building query
 		}
 	}
 }
