@@ -1,8 +1,8 @@
 package db.system.Validator;
 
-import db.query.Query;
+import db.Error.WrongTokenFoundException;
 
-public interface Validator {
+public interface Validator<T> {
 
-	public boolean validate(Query query);
+	public Boolean validate(T[] input);
 }

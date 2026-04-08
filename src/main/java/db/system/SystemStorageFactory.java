@@ -9,7 +9,7 @@ public enum SystemStorageFactory {
 	Meta,
 	Query;
 	
-	public Storage Navigation() {
+	public Navigation() {
 		return null;
 	}
 }

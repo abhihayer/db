@@ -1,15 +1,22 @@
 package db.query.helper;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import db.query.token.tokenInterface.Token;
+import db.system.Validator.Validator;
 
 public class ValidToken {
 	
-	Set<String> tokenSet = new HashSet<>();
-
-	public boolean isTokenTypeAbsent(Class<? extends Token> cls) {
-		return tokenSet.add(cls.getSimpleName());
+	public static Boolean extractedCommonValidate(Token token, List<Token> query, Validator<Token> queryValidator) {
+		Token[] tokens = new Token[] { 
+				(query.isEmpty()? null: query.get(query.size()-1)), 
+				token
+				};
+		
+		if(queryValidator.validate(tokens)) {
+			return true;
+		}
+		
+		return false;
 	}
 }
