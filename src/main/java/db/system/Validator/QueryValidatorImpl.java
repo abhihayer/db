@@ -8,6 +8,7 @@ import db.query.token.tokenInterface.Token;
 
 import java.util.Map;
 import java.util.Set;
+import java.lang.System.Logger;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -30,17 +31,27 @@ public class QueryValidatorImpl implements Validator<Token>{
 	    
 	    // DATABASE -> [End of sequence, empty set]
 	    graph.putIfAbsent(DATABASE.class.getSimpleName(), new HashSet<>());
+	    
+	    System.out.println(graph);
 	}
 
 	@Override
 	public Boolean validate(Token[] token) {
 		
-		Set<String> possibleTokens = null;
+		Set<String> possibleTokens = new HashSet<>();
+		possibleTokens.add(ROOT.class.getSimpleName()); // Default starting point: Root
 		
-		if (token == null || token.length < 2) {
-        	throw new IllegalArgumentException("Query must contain at least two tokens.");
+		if (token == null || token.length != 2) {
+        	throw new IllegalArgumentException("Query must contain two tokens.");
     	}
     
+		if(token[0] == null && token[1] != null) {
+			if(token[1].getToken() == ROOT.class.getSimpleName())
+				return true;
+			else
+				throw new WrongTokenFoundException(token[1], token[0], possibleTokens);
+		}
+		
 		if (token[0] != null && token[1] != null) {
 			possibleTokens = graph.get(token[0].getToken());
 			
@@ -49,6 +60,6 @@ public class QueryValidatorImpl implements Validator<Token>{
 			}
 		}
 		
-		throw new WrongTokenFoundException(token[0], token[1], possibleTokens);
+		throw new WrongTokenFoundException(token[1], token[0], possibleTokens);
 	}
 }

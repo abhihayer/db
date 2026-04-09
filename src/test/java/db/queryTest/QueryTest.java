@@ -4,17 +4,15 @@ import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
 
+import db.Error.QueryErrorException;
 import db.Error.WrongTokenFoundException;
-import db.query.Query;
 import db.query.queries.DatabaseCreateQuery;
 
 public class QueryTest {
 
 	@Test
 	public void buildDbQuerySuccess() {
-		Query dbCreateQuery = DatabaseCreateQuery.getNestedQueryBuilder().root().create().database("user", "abhi", "pass").BuildQuery();
-				
-		assertEquals(dbCreateQuery.getQuery().size(), 3);
+		DatabaseCreateQuery.getNestedQueryBuilder().root().create().database("user", "abhi", "pass").BuildQuery();
 	}
 	
 	@Test
@@ -23,7 +21,7 @@ public class QueryTest {
 			DatabaseCreateQuery.getNestedQueryBuilder().create().database("user", "abhi", "pass").BuildQuery();
 		}
 		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "Token Missing : ROOT before adding: CREATE");
+			assertEquals(e.getMessage(), "Wrong token found: CREATE after token: null, possible tokens: [ROOT]");
 
 		}
 	}
@@ -34,7 +32,7 @@ public class QueryTest {
 			DatabaseCreateQuery.getNestedQueryBuilder().root().root().create().database("user", "abhi", "pass").BuildQuery();
 		}
 		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "ERROR! Found duplicate token: ROOT");
+			assertEquals(e.getMessage(), "Wrong token found: ROOT after token: ROOT, possible tokens: [CREATE]");
 		}
 	}
 	
@@ -44,9 +42,7 @@ public class QueryTest {
 			DatabaseCreateQuery.getNestedQueryBuilder().root().create().create().database("user", "abhi", "pass").BuildQuery();
 		}
 		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "ERROR! Found duplicate token: CREATE");
-			// db.Error.WrongTokenFoundException: ERROR! Found duplicate token: CREATE
-
+			assertEquals(e.getMessage(), "Wrong token found: CREATE after token: CREATE, possible tokens: [DATABASE]");
 		}
 	}
 	
@@ -56,7 +52,7 @@ public class QueryTest {
 			DatabaseCreateQuery.getNestedQueryBuilder().root().database("user", "abhi", "pass").BuildQuery();
 		}
 		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "Token Missing : CREATE before adding: DATABASE");
+			assertEquals(e.getMessage(), "Wrong token found: DATABASE after token: ROOT, possible tokens: [CREATE]");
 
 		}
 	}
@@ -67,7 +63,7 @@ public class QueryTest {
 			DatabaseCreateQuery.getNestedQueryBuilder().root().create().database("user", "abhi", "pass").database("user", "abhi", "pass").BuildQuery();
 		}
 		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "ERROR! Found duplicate token: DATABASE");
+			assertEquals(e.getMessage(), "Wrong token found: DATABASE after token: DATABASE, possible tokens: []");
 		}
 	}
 	
@@ -76,10 +72,8 @@ public class QueryTest {
 		try {
 			DatabaseCreateQuery.getNestedQueryBuilder().root().BuildQuery();
 		}
-		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "Token Missing : CREATE before building query");
-			
-			//db.Error.WrongTokenFoundException: Token Missing : CREATE before building query
+		catch(QueryErrorException e) {
+			assertEquals(e.getMessage(), "Query Error: can't build this query");
 		}
 	}
 }

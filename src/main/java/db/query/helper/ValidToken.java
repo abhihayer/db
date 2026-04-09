@@ -8,8 +8,23 @@ import db.system.Validator.Validator;
 public class ValidToken {
 	
 	public static Boolean extractedCommonValidate(Token token, List<Token> query, Validator<Token> queryValidator) {
+		
 		Token[] tokens = new Token[] { 
-				(query.isEmpty()? null: query.get(query.size()-1)), 
+				query.isEmpty() ? null : query.get(query.size()-1), 
+				token
+				};
+		
+		if(queryValidator.validate(tokens)) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public static Boolean extractedCommonValidate(Token token, Token prevToken, Validator<Token> queryValidator) {
+		
+		Token[] tokens = new Token[] { 
+				prevToken, 
 				token
 				};
 		

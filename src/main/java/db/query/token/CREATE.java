@@ -2,7 +2,7 @@ package db.query.token;
 
 import db.query.token.tokenInterface.Token;
 
-public record CREATE() implements Token {
+public record CREATE(Boolean isTokenTerminal) implements Token {
 	
 	@Override
 	public String getToken() {
@@ -13,5 +13,4 @@ public record CREATE() implements Token {
 	public Boolean hasTokenState() {
 		return false;
 	}
-	
 }

@@ -2,7 +2,7 @@ package db.query.token;
 
 import db.query.token.tokenInterface.Token;
 
-public record ROOT() implements Token{
+public record ROOT(Boolean isTokenTerminal) implements Token{
 	
 	@Override
 	public String getToken() {

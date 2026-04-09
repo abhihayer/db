@@ -5,7 +5,9 @@ import db.query.token.tokenInterface.Token;
 public record DATABASE(
 		String dbname, 
 		String username, 
-		String passward
+		String passward,
+		
+		Boolean isTokenTerminal
 	) implements Token {
 	
 	@Override
