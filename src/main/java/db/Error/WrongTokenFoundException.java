@@ -11,12 +11,10 @@ public class WrongTokenFoundException extends RuntimeException {
 	 */
 	private static final long serialVersionUID = 4008145011407759409L;
 	
-	public WrongTokenFoundException(Token currenttoken, Token prevToken, Set<String> possibleTokens) {
+	public WrongTokenFoundException(Token currenttoken, Set<String> possibleTokens) {
 		
 		super("Wrong token found: "+ 
 				(currenttoken==null? null : currenttoken.getToken()) + 
-				" after token: "+ 
-				(prevToken == null? null : prevToken.getToken()) +
 				", possible tokens: " + possibleTokens
 				);
 	}

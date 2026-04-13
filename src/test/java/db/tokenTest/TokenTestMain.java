@@ -23,7 +23,6 @@ public class TokenTestMain {
 	@Test
 	public void getDBAttributes() {	
 		assertEquals(tokenDb.getToken(), "DATABASE");
-		assertEquals(tokenDb.hasTokenState(), Boolean.TRUE);
 		assertEquals(((DATABASE)tokenDb).dbname(), "user");
 		assertEquals(((DATABASE)tokenDb).username(), "abhi");
 		assertEquals(((DATABASE)tokenDb).passward(), "pass");

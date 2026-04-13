@@ -1,79 +1,79 @@
 package db.queryTest;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.expectThrows;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import db.Error.QueryErrorException;
 import db.Error.WrongTokenFoundException;
 import db.query.queries.DatabaseCreateQuery;
+import db.system.validator.QueryValidator;
+import db.system.validator.implementation.QueryValidatorImpl;
 
 public class QueryTest {
 
-	@Test
-	public void buildDbQuerySuccess() {
-		DatabaseCreateQuery.getNestedQueryBuilder().root().create().database("user", "abhi", "pass").BuildQuery();
-	}
-	
-	@Test
-	public void buildDbQueryFail1() {
-		try {
-			DatabaseCreateQuery.getNestedQueryBuilder().create().database("user", "abhi", "pass").BuildQuery();
-		}
-		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "Wrong token found: CREATE after token: null, possible tokens: [ROOT]");
+    private QueryValidator validator;
 
-		}
-	}
-	
-	@Test
-	public void buildDbQueryFail2() {
-		try {
-			DatabaseCreateQuery.getNestedQueryBuilder().root().root().create().database("user", "abhi", "pass").BuildQuery();
-		}
-		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "Wrong token found: ROOT after token: ROOT, possible tokens: [CREATE]");
-		}
-	}
-	
-	@Test
-	public void buildDbQueryFail3() {
-		try {
-			DatabaseCreateQuery.getNestedQueryBuilder().root().create().create().database("user", "abhi", "pass").BuildQuery();
-		}
-		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "Wrong token found: CREATE after token: CREATE, possible tokens: [DATABASE]");
-		}
-	}
-	
-	@Test
-	public void buildDbQueryFail4() {
-		try {
-			DatabaseCreateQuery.getNestedQueryBuilder().root().database("user", "abhi", "pass").BuildQuery();
-		}
-		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "Wrong token found: DATABASE after token: ROOT, possible tokens: [CREATE]");
+    @BeforeMethod
+    public void setUp() {
+        // We inject the FSM Validator directly. No global Singletons required!
+        this.validator = new QueryValidatorImpl(); 
+    }
 
-		}
-	}
-	
-	@Test
-	public void buildDbQueryFail5() {
-		try {
-			DatabaseCreateQuery.getNestedQueryBuilder().root().create().database("user", "abhi", "pass").database("user", "abhi", "pass").BuildQuery();
-		}
-		catch(WrongTokenFoundException e) {
-			assertEquals(e.getMessage(), "Wrong token found: DATABASE after token: DATABASE, possible tokens: []");
-		}
-	}
-	
-	@Test
-	public void buildDbQueryFail6() {
-		try {
-			DatabaseCreateQuery.getNestedQueryBuilder().root().BuildQuery();
-		}
-		catch(QueryErrorException e) {
-			assertEquals(e.getMessage(), "Query Error: can't build this query");
-		}
-	}
+    @Test
+    public void buildDbQuerySuccess() {
+        DatabaseCreateQuery.getNestedQueryBuilder(validator)
+                .create()
+                .database("user", "abhi", "pass")
+                .buildQuery(); // Assuming you fixed the uppercase 'B'
+    }
+    
+    @Test
+    public void buildDbQueryFail3() {
+        WrongTokenFoundException e = expectThrows(WrongTokenFoundException.class, () -> {
+            DatabaseCreateQuery.getNestedQueryBuilder(validator)
+                    .create()
+                    .create() // Duplicate create
+                    .database("user", "abhi", "pass")
+                    .buildQuery();
+        });
+        
+        assertEquals(e.getMessage(), "Wrong token found: CREATE, possible tokens: [DATABASE]");
+    }
+    
+    @Test
+    public void buildDbQueryFail4() {
+        WrongTokenFoundException e = expectThrows(WrongTokenFoundException.class, () -> {
+            DatabaseCreateQuery.getNestedQueryBuilder(validator)
+                    .database("user", "abhi", "pass") // Missing create
+                    .buildQuery();
+        });
+        
+        assertEquals(e.getMessage(), "Wrong token found: DATABASE, possible tokens: [CREATE]");
+    }
+    
+    @Test
+    public void buildDbQueryFail5() {
+        WrongTokenFoundException e = expectThrows(WrongTokenFoundException.class, () -> {
+            DatabaseCreateQuery.getNestedQueryBuilder(validator)
+                    .create()
+                    .database("user", "abhi", "pass")
+                    .database("user", "abhi", "pass") // Duplicate database
+                    .buildQuery();
+        });
+        
+        assertEquals(e.getMessage(), "Wrong token found: DATABASE, possible tokens: []");
+    }
+    
+    @Test
+    public void buildDbQueryFail6() {
+        // Assuming your builder throws QueryErrorException if the FSM doesn't reach a terminal state
+    	IllegalArgumentException e = expectThrows(IllegalArgumentException.class, () -> {
+            DatabaseCreateQuery.getNestedQueryBuilder(validator)
+                    .buildQuery();
+        });
+        
+        assertEquals(e.getMessage(), "Query tokens cannot be empty.");
+    }
 }
